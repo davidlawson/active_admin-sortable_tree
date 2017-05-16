@@ -114,7 +114,13 @@ module ActiveAdmin
       end
 
       def build_nested_item(item)
-        li :id => "#{@resource_name}_#{item.id}" do
+        li_options = { id: "#{@resource_name}_#{item.id}" }
+        if item.respond_to? :allowed_children?
+          if !item.allowed_children?
+            li_options[:class] = 'not_allowed_children'
+          end
+        end
+        li li_options do
 
           div :class => "item " << cycle("odd", "even", :name => "list_class") do
             if active_admin_config.batch_actions.any?
@@ -147,6 +153,7 @@ module ActiveAdmin
 
       def build_actions(resource)
         links = ''.html_safe
+        links << instance_exec(resource, &@other_actions) if @other_actions
         if @default_actions
           if controller.action_methods.include?('show') && authorized?(ActiveAdmin::Auth::READ, resource)
             links << link_to(I18n.t('active_admin.view'), resource_path(resource), :class => "member_link view_link")
@@ -158,7 +165,6 @@ module ActiveAdmin
             links << link_to(I18n.t('active_admin.delete'), resource_path(resource), :method => :delete, :data => {:confirm => I18n.t('active_admin.delete_confirmation')}, :class => "member_link delete_link")
           end
         end
-        links << instance_exec(resource, &@other_actions) if @other_actions
         links
       end
 

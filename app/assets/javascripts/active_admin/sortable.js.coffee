@@ -52,6 +52,8 @@ $ ->
       toleranceElement: '> div'
       isTree: true
       startCollapsed: $this.data("start-collapsed")
+      isAllowed: (a, b, c) ->
+        (b == null) || !b.hasClass('not_allowed_children')
       update: ->
         $this.nestedSortable("disable")
         $.ajax
